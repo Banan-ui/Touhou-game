@@ -17,6 +17,12 @@ class Player():
         self.image = self.idle_image
         self.rect = self.image.get_rect()
 
+        #Загружаем изображения шаров
+        self.ball_images = [pygame.image.load('images/ball_1.png'), 
+            pygame.image.load('images/ball_2.png'), 
+            pygame.image.load('images/ball_3.png')]
+        self.update_ball_image()
+
         #Булевые значения движениея
         self.moving_left = False
         self.moving_right = False
@@ -32,7 +38,10 @@ class Player():
             self.x -= self.settings.player_speed
         if self.moving_right and self.rect.right < self.screen_rect.right:
             self.x += self.settings.player_speed
-        self.rect.x = self.x  
+        self.rect.x = self.x
+
+    def update_ball_image(self):
+        self.ball_image = self.ball_images[self.settings.ball-1]
 
     def change_image(self):
         if self.moving_right and self.moving_left:
@@ -47,4 +56,5 @@ class Player():
     def blitme(self):
         """Рисует персонажа в текущей позиции."""
         self.screen.blit(self.image, self.rect)
+        self.screen.blit(self.ball_image, self.rect)
 

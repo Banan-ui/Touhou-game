@@ -10,3 +10,7 @@ class Settings():
         self.monitor = 1
         self.bg_image = pygame.image.load('images/background.png')
         self.player_speed = 1
+
+        self.bullet_speed = 2
+        self.max_ball = 3
+        self.ball = 1
