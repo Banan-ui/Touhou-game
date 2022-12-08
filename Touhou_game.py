@@ -4,6 +4,9 @@ import pygame
 from settings import Settings
 from bullet import Bullet
 from player import Player
+from point import Point
+from enemy import Enemy
+from life_bar import LifeBar
 
 class TouhouGame:
     """Класс для управления ресурсами и поведением игры."""
@@ -18,12 +21,20 @@ class TouhouGame:
         pygame.display.set_caption("Touhou game")
  
         self.player = Player(self)
+        self.enemy = Enemy(self)
         self.bullets = pygame.sprite.Group()
+        self.points = pygame.sprite.Group()
+        self.life_bar = LifeBar(self)
+
         self.fire = False
 
-        #Таймер для ограничения скорости создания пуль
+
+        #Таймер для ограничения скорости создания пуль и создания поинтов
+        pygame.time.set_timer(pygame.USEREVENT+1, self.settings.time_spawn_new_point)
         self.fire_timing = True
 
+        #Таймер для смещение позиуии противника
+        pygame.time.set_timer(pygame.USEREVENT+2, self.settings.time_change_enemy_position)
 
     def run_game(self):
         """Запуск основного цикла игры."""
@@ -34,6 +45,8 @@ class TouhouGame:
             if self.fire and self.fire_timing:
                 self._create_bullets()
             self._update_bullets()
+            self.enemy.update_position()
+            self._update_points()
             self._update_screen()
 
     def _create_bullets(self): #!!!
@@ -53,9 +66,52 @@ class TouhouGame:
     def _update_bullets(self):
         """Обновление позиции и удаления пуль"""
         self.bullets.update()
+        self._check_ballet_enemy_collisions()
         for bullet in self.bullets.copy():
             if bullet.rect.bottom <= 0:
                 self.bullets.remove(bullet)
+
+
+    def _check_ballet_enemy_collisions(self):
+        """Проверка колиизии Марисы и пуль"""
+        collision = pygame.sprite.spritecollideany(self.enemy, self.bullets)
+        if collision:
+            #Уменьшение хп и перерисовка полоски жизни
+            self.settings.enemy_hp -= self.settings.damage_for_hit
+            self.life_bar.create_green_bar()
+            collision.kill()
+
+    def _update_points(self):
+        """Обновления позиции поинта"""
+        self.points.update()
+        if self.points:
+            self._check_point_player_collisions()
+        for point in self.points.copy():
+            if point.rect.top >= self.screen.get_height():
+                self.points.remove(point)
+
+    def _check_point_player_collisions(self):
+        """Проверка коллизий поинта с персонажем"""
+        collision = pygame.sprite.spritecollideany(self.player, self.points)
+        if collision:
+            collision.kill()
+            if self.settings.variable_damage < self.settings.max_variable_damage:
+                self._added_damage_and_change_ball()
+
+    def _added_damage_and_change_ball(self):
+        """Увеличение урона и изменение количества шаров"""
+        self.settings.variable_damage += 1
+
+        leaving = self.settings.variable_damage % 10 #Кратное десяти
+        if not leaving and self.settings.variable_damage < 30:
+            """0 -> 9 = 1 ball;
+            10 -> 19 = 2 balls;
+            20 -> max_damage = 3 balls"""
+            self.settings.ball = int(self.settings.variable_damage / 10)+1
+            self.player.update_ball_image()
+
+        self.settings.update_full_damage()
+
 
     def _create_timings(self):
         """Сброс таймера при начале стрельбы"""
@@ -73,6 +129,11 @@ class TouhouGame:
                 self._check_key_up(event)
             elif event.type == pygame.USEREVENT:
                 self.fire_timing = True        
+            elif event.type == pygame.USEREVENT+1:
+                self.points.add(Point(self))
+            elif event.type == pygame.USEREVENT+2:
+                self.enemy.create_new_position()
+
 
     def _check_key_down(self, event):
         """При нажатии клавиш"""
@@ -104,6 +165,9 @@ class TouhouGame:
         self.screen.blit(self.settings.bg_image, (0, 0))
         self.player.blitme()
         self.bullets.draw(self.screen)
+        self.points.draw(self.screen)
+        self.enemy.blit_me()
+        self.life_bar.draw_bars()
         pygame.display.flip()
  
 if __name__ == '__main__':
