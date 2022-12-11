@@ -7,6 +7,7 @@ from player import Player
 from point import Point
 from enemy import Enemy
 from life_bar import LifeBar
+from star import Star
 
 class TouhouGame:
     """Класс для управления ресурсами и поведением игры."""
@@ -24,6 +25,7 @@ class TouhouGame:
         self.enemy = Enemy(self)
         self.bullets = pygame.sprite.Group()
         self.points = pygame.sprite.Group()
+        self.stars = pygame.sprite.Group()
         self.life_bar = LifeBar(self)
 
         self.fire = False
@@ -36,6 +38,10 @@ class TouhouGame:
         #Таймер для смещение позиуии противника
         pygame.time.set_timer(pygame.USEREVENT+2, self.settings.time_change_enemy_position)
 
+        #Таймер для спавна новой звезды
+        pygame.time.set_timer(pygame.USEREVENT+3, self.settings.time_star_spawn)
+
+
     def run_game(self):
         """Запуск основного цикла игры."""
         while True:
@@ -47,6 +53,7 @@ class TouhouGame:
             self._update_bullets()
             self.enemy.update_position()
             self._update_points()
+            self._stars_update()
             self._update_screen()
 
     def _create_bullets(self): #!!!
@@ -117,6 +124,14 @@ class TouhouGame:
         """Сброс таймера при начале стрельбы"""
         pygame.time.set_timer(pygame.USEREVENT, 100)
 
+    def _stars_update(self):
+        self.stars.update()
+        for star in self.stars.copy():
+            if star.rect.top >= self.screen.get_height():
+                self.stars.remove(star)
+        print(len(self.stars))
+
+
 
     def _check_events(self):
         """Отслеживание событий игры"""         
@@ -133,6 +148,9 @@ class TouhouGame:
                 self.points.add(Point(self))
             elif event.type == pygame.USEREVENT+2:
                 self.enemy.create_new_position()
+            elif event.type == pygame.USEREVENT+3:
+                self.stars.add(Star(self))
+
 
 
     def _check_key_down(self, event):
@@ -165,6 +183,7 @@ class TouhouGame:
         self.screen.blit(self.settings.bg_image, (0, 0))
         self.player.blitme()
         self.bullets.draw(self.screen)
+        self.stars.draw(self.screen)
         self.points.draw(self.screen)
         self.enemy.blit_me()
         self.life_bar.draw_bars()

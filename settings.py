@@ -7,7 +7,7 @@ class Settings():
         self.screen_width = 500
         self.screen_height = 800
         self.bg_color = (230, 230, 230)
-        self.monitor = 1
+        self.monitor = 0
         self.bg_image = pygame.image.load('images/background.png')
         self.player_speed = 2
 
@@ -25,7 +25,9 @@ class Settings():
 
         self.start_enemy_hp = 1000
         self.enemy_hp = 1000
-        
+
+        self.star_speed = 1
+        self.time_star_spawn = 1000
 
     def update_full_damage(self):
         """Обновляет значение общего домага и домага за одно попадание"""
