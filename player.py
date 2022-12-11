@@ -1,5 +1,7 @@
 import pygame
 
+from rect_collision import RectCollision
+
 class Player():
     """Класс для управления кораблем."""
     def __init__(self, ai_game):
@@ -30,6 +32,9 @@ class Player():
         self.rect.midbottom = self.screen_rect.midbottom
         self.rect.y -= 20
 
+        self.rect_collision = RectCollision(self.rect.center, 20, ai_game.screen)
+
+
         self.x = float(self.rect.x)
 
     def update(self): #side 1 влево, 0 в право
@@ -37,6 +42,7 @@ class Player():
             self.x -= self.settings.player_speed
         if self.moving_right and self.rect.right < self.screen_rect.right:
             self.x += self.settings.player_speed
+        self.rect_collision.rect.center = self.rect.center
         self.rect.x = self.x
 
     def update_ball_image(self):

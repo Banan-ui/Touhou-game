@@ -26,6 +26,8 @@ class TouhouGame:
         self.bullets = pygame.sprite.Group()
         self.points = pygame.sprite.Group()
         self.stars = pygame.sprite.Group()
+        self.stars_collision_rects = pygame.sprite.Group()
+
         self.life_bar = LifeBar(self)
 
         self.fire = False
@@ -125,11 +127,26 @@ class TouhouGame:
         pygame.time.set_timer(pygame.USEREVENT, 100)
 
     def _stars_update(self):
+        """Обновление положения звезд"""
         self.stars.update()
         for star in self.stars.copy():
+            # Удаление звезд за пределами экрана
             if star.rect.top >= self.screen.get_height():
+                self.stars_collision_rects.remove(star.rect_collision)
                 self.stars.remove(star)
-        print(len(self.stars))
+        self._check_player_stars_collision()
+
+
+    def _check_player_stars_collision(self):
+        """Проверка коллизиq звезд с персонажем"""
+        collision = pygame.sprite.spritecollideany(self.player.rect_collision, 
+            self.stars_collision_rects)
+        if collision:
+            print(123)
+            # collision.kill()
+            # if self.settings.variable_damage < self.settings.max_variable_damage:
+            #     self._added_damage_and_change_ball()
+
 
 
 
@@ -150,6 +167,8 @@ class TouhouGame:
                 self.enemy.create_new_position()
             elif event.type == pygame.USEREVENT+3:
                 self.stars.add(Star(self))
+                for star in self.stars.sprites():
+                    self.stars_collision_rects.add(star.rect_collision)
 
 
 
@@ -184,6 +203,10 @@ class TouhouGame:
         self.player.blitme()
         self.bullets.draw(self.screen)
         self.stars.draw(self.screen)
+
+        self.stars_collision_rects.update()
+        self.player.rect_collision.update()
+
         self.points.draw(self.screen)
         self.enemy.blit_me()
         self.life_bar.draw_bars()

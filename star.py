@@ -2,6 +2,8 @@ import pygame
 from pygame.sprite import Sprite
 from random import randint
 
+from rect_collision import RectCollision
+
 class Star(Sprite):
     """Класс для создания вражеских звезд"""
     def __init__(self, ai_game):
@@ -19,6 +21,8 @@ class Star(Sprite):
         self.rect = self.image.get_rect(center=self.center_position)
         self.angle = 0
 
+        self.rect_collision = RectCollision(self.rect.center, 30, ai_game.screen)
+
     def update(self):
         """Перемещение и поворот звезды"""
         #Поворот звезды
@@ -33,3 +37,4 @@ class Star(Sprite):
 
         #Пересоздания rect
         self.rect = self.image.get_rect(center=self.center_position)
+        self.rect_collision.rect.center = self.rect.center
