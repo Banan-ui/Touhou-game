@@ -22,6 +22,7 @@ class Star(Sprite):
         self.angle = 0
 
         self.rect_collision = RectCollision(self.rect.center, 30, ai_game.screen)
+        self.y = float(self.rect.y)
 
     def update(self):
         """Перемещение и поворот звезды"""
@@ -33,7 +34,8 @@ class Star(Sprite):
         self.image = pygame.transform.rotate(self.main_image, self.angle)
 
         #Смена положения
-        self.center_position[1] += self.settings.star_speed #Изменения позиции по y
+        self.y += self.settings.star_speed
+        self.center_position[1] = int(self.y) #Изменения позиции по y
 
         #Пересоздания rect
         self.rect = self.image.get_rect(center=self.center_position)

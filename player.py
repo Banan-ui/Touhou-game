@@ -15,6 +15,7 @@ class Player():
         self.left_image = pygame.image.load('images/reimu_left.png')
         self.right_image = pygame.image.load('images/reimu_right.png')
         self.idle_image = pygame.image.load('images/reimu_idle.png')
+        self.all_player_images = [self.left_image, self.right_image, self.idle_image]
         self.image = self.idle_image
         self.rect = self.image.get_rect()
 
@@ -42,8 +43,8 @@ class Player():
             self.x -= self.settings.player_speed
         if self.moving_right and self.rect.right < self.screen_rect.right:
             self.x += self.settings.player_speed
-        self.rect_collision.rect.center = self.rect.center
         self.rect.x = self.x
+        self.rect_collision.rect.center = self.rect.center
 
     def update_ball_image(self):
         self.ball_image = self.ball_images[self.settings.ball-1]
@@ -57,6 +58,24 @@ class Player():
             self.image = self.right_image
         else:
             self.image = self.idle_image
+
+
+    def reset_position(self):
+        """Перемещение персонажа на изначальную позицию"""
+        self.rect.midbottom = self.screen_rect.midbottom
+        self.rect.y -= 20
+        self.x = float(self.rect.x)
+        self.change_images_alpha(100)
+
+    def change_images_alpha(self, value=255):
+        """Изменение прозрачности изображений"""
+        #Изменение прозрачно изображений персонажа
+        for image in self.all_player_images:
+            image.set_alpha(value)
+        #Изменение прозрачно изображений шаров
+        for image in self.ball_images:
+            image.set_alpha(value)
+
 
     def blitme(self):
         """Рисует персонажа в текущей позиции."""

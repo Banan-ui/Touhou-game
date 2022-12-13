@@ -8,6 +8,8 @@ from point import Point
 from enemy import Enemy
 from life_bar import LifeBar
 from star import Star
+from game_stats import GameStats
+from scoreboard import Scoreboard
 
 class TouhouGame:
     """Класс для управления ресурсами и поведением игры."""
@@ -27,21 +29,24 @@ class TouhouGame:
         self.points = pygame.sprite.Group()
         self.stars = pygame.sprite.Group()
         self.stars_collision_rects = pygame.sprite.Group()
+        self.game_stats = GameStats(self)
+        self.scoreboard = Scoreboard(self)
+
+        self.neutral_status = False
 
         self.life_bar = LifeBar(self)
 
         self.fire = False
 
 
-        #Таймер для ограничения скорости создания пуль и создания поинтов
+        #Таймер для ограничения скорости создания поинтов
         pygame.time.set_timer(pygame.USEREVENT+1, self.settings.time_spawn_new_point)
         self.fire_timing = True
 
-        #Таймер для смещение позиуии противника
+        #Таймер для смещение позиции противника
         pygame.time.set_timer(pygame.USEREVENT+2, self.settings.time_change_enemy_position)
 
-        #Таймер для спавна новой звезды
-        pygame.time.set_timer(pygame.USEREVENT+3, self.settings.time_star_spawn)
+        self.restart_spawn_star_timer()
 
 
     def run_game(self):
@@ -89,6 +94,27 @@ class TouhouGame:
             self.settings.enemy_hp -= self.settings.damage_for_hit
             self.life_bar.create_green_bar()
             collision.kill()
+            self.game_stats.score += self.settings.score_for_hit
+            self.scoreboard.prep_score()
+            
+            if self.settings.enemy_hp <= 0:
+                self._new_level()
+
+    def _new_level(self):
+        self.stars.empty()
+        self.stars_collision_rects.empty()
+        self.settings.level_up()
+
+        self.life_bar.new_bar_settings()
+        self.life_bar.create_green_bar()
+        self.scoreboard.prep_level()
+
+        self.restart_spawn_star_timer()
+
+    def restart_spawn_star_timer(self):
+        """Таймер для спавна новой звезды"""
+        pygame.time.set_timer(pygame.USEREVENT+3, self.settings.time_star_spawn)
+
 
     def _update_points(self):
         """Обновления позиции поинта"""
@@ -110,20 +136,25 @@ class TouhouGame:
     def _added_damage_and_change_ball(self):
         """Увеличение урона и изменение количества шаров"""
         self.settings.variable_damage += 1
+        self.scoreboard.prep_damage()
 
         leaving = self.settings.variable_damage % 10 #Кратное десяти
         if not leaving and self.settings.variable_damage < 30:
-            """0 -> 9 = 1 ball;
+            self._change_balls()
+
+        self.settings.update_full_damage()
+
+    def _change_balls(self):
+            """Обновление количества шаров
+            0 -> 9 = 1 ball;
             10 -> 19 = 2 balls;
             20 -> max_damage = 3 balls"""
             self.settings.ball = int(self.settings.variable_damage / 10)+1
             self.player.update_ball_image()
 
-        self.settings.update_full_damage()
-
-
     def _create_timings(self):
-        """Сброс таймера при начале стрельбы"""
+        """Таймер для кулдауна выпуска пуль"""
+        # Сброс таймера при начале стрельбы
         pygame.time.set_timer(pygame.USEREVENT, 100)
 
     def _stars_update(self):
@@ -134,7 +165,8 @@ class TouhouGame:
             if star.rect.top >= self.screen.get_height():
                 self.stars_collision_rects.remove(star.rect_collision)
                 self.stars.remove(star)
-        self._check_player_stars_collision()
+        if not self.neutral_status:
+            self._check_player_stars_collision()
 
 
     def _check_player_stars_collision(self):
@@ -142,12 +174,24 @@ class TouhouGame:
         collision = pygame.sprite.spritecollideany(self.player.rect_collision, 
             self.stars_collision_rects)
         if collision:
-            print(123)
-            # collision.kill()
-            # if self.settings.variable_damage < self.settings.max_variable_damage:
-            #     self._added_damage_and_change_ball()
+            self._player_hit()
 
-
+    def _player_hit(self):
+        """Поведение персонажа при состыковке с звездой"""
+        if self.settings.player_lives > 0:
+            self.settings.player_lives -= 1
+            self.neutral_status = True
+            self.player.reset_position()
+            #Установка таймера нейтрального режима
+            pygame.time.set_timer(pygame.USEREVENT+4, self.settings.neutral_status_time)
+            if self.settings.variable_damage >= 10:
+                self.settings.variable_damage -= 10
+            else: 
+                self.settings.variable_damage = 0
+            self._change_balls()
+            self.scoreboard.prep_damage()
+        else:
+            sys.exit() #Game Over
 
 
     def _check_events(self):
@@ -166,10 +210,13 @@ class TouhouGame:
             elif event.type == pygame.USEREVENT+2:
                 self.enemy.create_new_position()
             elif event.type == pygame.USEREVENT+3:
-                self.stars.add(Star(self))
-                for star in self.stars.sprites():
-                    self.stars_collision_rects.add(star.rect_collision)
-
+                for nummer in range(0, self.settings.spawn_stars):
+                    self.stars.add(Star(self))
+                    for star in self.stars.sprites():
+                        self.stars_collision_rects.add(star.rect_collision)
+            elif event.type == pygame.USEREVENT+4:
+                self.player.change_images_alpha()
+                self.neutral_status = False
 
 
     def _check_key_down(self, event):
@@ -210,6 +257,7 @@ class TouhouGame:
         self.points.draw(self.screen)
         self.enemy.blit_me()
         self.life_bar.draw_bars()
+        self.scoreboard.show_score()
         pygame.display.flip()
  
 if __name__ == '__main__':

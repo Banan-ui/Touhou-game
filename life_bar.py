@@ -18,10 +18,12 @@ class LifeBar():
         self.rect = pygame.Rect(self.border, self.border, 
             self.rect_width, self.border)
 
-        #Создания пропорциональности кол-ва хп на один отрисованный пиксель
-        self.one_pixel_hp = self.settings.start_enemy_hp / self.rect_width #float
-
+        self.new_bar_settings()        
         self.create_green_bar()
+
+    def new_bar_settings(self):
+        """Создание пропорции одного пиксеся полоски жизни к кол-ву хп"""
+        self.one_pixel_hp = self.settings.start_enemy_hp / self.rect_width #float
 
     def create_green_bar(self):
         """Создание зеленой полоски для отображения оставшегося здоровья"""

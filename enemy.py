@@ -12,7 +12,7 @@ class Enemy():
         self.image = pygame.image.load('images/marisa.png')
         self.rect = self.image.get_rect(midtop=self.screen_rect.midtop)
         #Опускание от верхней точки окна для вывода статистики игры
-        self.rect.y += 50
+        self.rect.y += 60
         self.new_position = self.rect.centerx
 
         self.x = float(self.rect.x)
