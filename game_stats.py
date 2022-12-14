@@ -12,3 +12,5 @@ class GameStats():
             self.high_score = int(json.load(f)) #Чтение из файла
 
         self.score = 900
+
+        self.game_active = True

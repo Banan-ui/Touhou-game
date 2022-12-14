@@ -12,6 +12,7 @@ class Scoreboard():
         self.text_color = (200, 200, 200)
         self.level_font = pygame.font.SysFont(None, 20)
         self.score_font = pygame.font.SysFont(None, 28)
+        self.start_text_font = pygame.font.SysFont(None, 32)
         self.live_star_image = pygame.image.load("images/live_star.png")
         self.live_star_rect = self.live_star_image.get_rect()
 
@@ -25,6 +26,12 @@ class Scoreboard():
 
         self.prep_level()
         self.prep_damage()
+
+        start_text = 'Press "p" for start game'
+        self.start_text_image = self.start_text_font.render(start_text ,True
+            , self.text_color)
+        self.start_text_rect = self.start_text_image.get_rect()
+        self.start_text_rect.center = self.screen_rect.center
 
 
     def prep_score(self):
@@ -68,6 +75,8 @@ class Scoreboard():
         for live in range(0, self.settings.player_lives):
             self.screen.blit(self.live_star_image,
                 [12+self.live_star_rect.width*live, 60])
+        if not self.stats.game_active:
+            self.screen.blit(self.start_text_image, self.start_text_rect)
 
 
 

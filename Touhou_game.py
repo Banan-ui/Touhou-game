@@ -32,11 +32,13 @@ class TouhouGame:
         self.game_stats = GameStats(self)
         self.scoreboard = Scoreboard(self)
 
+
+        self.game_stats.game_active = False
         self.neutral_status = False
 
         self.life_bar = LifeBar(self)
-
         self.fire = False
+
 
 
         #Таймер для ограничения скорости создания поинтов
@@ -54,13 +56,15 @@ class TouhouGame:
         while True:
             # Отслеживание событий клавиатуры и мыши.
             self._check_events()
-            self.player.update()
-            if self.fire and self.fire_timing:
-                self._create_bullets()
-            self._update_bullets()
-            self.enemy.update_position()
-            self._update_points()
-            self._stars_update()
+
+            if self.game_stats.game_active:
+                self.player.update()
+                if self.fire and self.fire_timing:
+                    self._create_bullets()
+                self._update_bullets()
+                self.enemy.update_position()
+                self._update_points()
+                self._stars_update()
             self._update_screen()
 
     def _create_bullets(self): #!!!
@@ -191,6 +195,7 @@ class TouhouGame:
             self._change_balls()
             self.scoreboard.prep_damage()
         else:
+            self.game_stats.game_active = False
             sys.exit() #Game Over
 
 
@@ -221,12 +226,14 @@ class TouhouGame:
 
     def _check_key_down(self, event):
         """При нажатии клавиш"""
-        if event.key == pygame.K_RIGHT:
+        if event.key == pygame.K_RIGHT and self.game_stats.game_active:
             self.player.moving_right = True
             self.player.change_image()
-        elif event.key == pygame.K_LEFT:
+        elif event.key == pygame.K_LEFT and self.game_stats.game_active:
             self.player.moving_left = True
             self.player.change_image()
+        elif event.key == pygame.K_p and not self.game_stats.game_active:
+            self.game_stats.game_active = True
         elif event.key == pygame.K_q:
             sys.exit()
         elif event.key == pygame.K_z:
