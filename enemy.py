@@ -30,6 +30,14 @@ class Enemy():
                 self.x -= 0.5
             self.rect.x = self.x
 
+    def reset_position(self):
+        self.rect.midtop = self.screen_rect.midtop
+        self.rect.y += 60
+
+        self.new_position = self.rect.centerx
+        self.x = float(self.rect.x)
+        
+
     def blit_me(self):
         """Рисует Марису в текущей позиции"""
         self.screen.blit(self.image, self.rect)

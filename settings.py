@@ -37,7 +37,7 @@ class Settings():
 
         self.star_speed = 1
         self.time_star_spawn = 1000
-        self.player_lives = 8
+        self.player_lives = 1
         self.level = 1
         self.start_enemy_hp = 1000
         self.enemy_hp = self.start_enemy_hp
@@ -45,16 +45,17 @@ class Settings():
 
     def level_up(self):
         """Увеличивает настройки сложности для нового уровня"""
-        self.score_for_hit += 5
-        self.star_speed += 0.2       
-        self.time_star_spawn = int(self.time_star_spawn*0.9) 
-        # self.time_star_spawn = 300
+        self.level += 1
+        if self.level <= 8:
+            self.star_speed += 0.2
+            self.time_star_spawn = int(self.time_star_spawn*0.9) 
+            self.start_enemy_hp += 500
+            #Увеличение кол-ва спавнушихся звезд за раз каждые уровня
+            self.spawn_stars = int(self.level / 3)+1
+
         if self.player_lives < self.max_player_lives:
             self.player_lives += 1
-        self.level += 1
-        self.start_enemy_hp += 500
+        self.score_for_hit += 5
         self.enemy_hp = self.start_enemy_hp
 
-        #Увеличение кол-ва спавнушихся звезд за раз каждые 3 уровня
-        self.spawn_stars = int(self.level / 3)+1
 

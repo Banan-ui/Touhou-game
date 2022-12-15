@@ -18,18 +18,18 @@ class TouhouGame:
         """Инициализирует игру и создает игровые ресурсы."""
         pygame.init()
         self.settings = Settings()
+        self.game_stats = GameStats(self)
  
         self.screen = pygame.display.set_mode((self.settings.screen_width,
             self.settings.screen_height), display=self.settings.monitor)
         pygame.display.set_caption("Touhou game")
- 
+
         self.player = Player(self)
         self.enemy = Enemy(self)
         self.bullets = pygame.sprite.Group()
         self.points = pygame.sprite.Group()
         self.stars = pygame.sprite.Group()
         self.stars_collision_rects = pygame.sprite.Group()
-        self.game_stats = GameStats(self)
         self.scoreboard = Scoreboard(self)
 
 
@@ -45,9 +45,7 @@ class TouhouGame:
         pygame.time.set_timer(pygame.USEREVENT+1, self.settings.time_spawn_new_point)
         self.fire_timing = True
 
-        #Таймер для смещение позиции противника
-        pygame.time.set_timer(pygame.USEREVENT+2, self.settings.time_change_enemy_position)
-
+        self.restart_new_enemy_position_timer()
         self.restart_spawn_star_timer()
 
 
@@ -102,12 +100,14 @@ class TouhouGame:
             self.scoreboard.prep_score()
             
             if self.settings.enemy_hp <= 0:
-                self._new_level()
+                self._new_level(level_up = True)
 
-    def _new_level(self):
+    def _new_level(self, level_up):
+        """Начинает новый уровень игры"""
         self.stars.empty()
         self.stars_collision_rects.empty()
-        self.settings.level_up()
+        if level_up:
+            self.settings.level_up()
 
         self.life_bar.new_bar_settings()
         self.life_bar.create_green_bar()
@@ -115,9 +115,33 @@ class TouhouGame:
 
         self.restart_spawn_star_timer()
 
+    def start_game(self):
+        """Запуск игры в активный режим"""
+        self.settings.initialize_dynamic_settings()
+
+        self.bullets.empty()
+        self.points.empty()
+
+        self.player.reset_position()
+        self.enemy.reset_position()
+        self.restart_new_enemy_position_timer()
+
+        self.game_stats.reset_stats()
+        self.scoreboard.prep_score()
+        self.scoreboard.prep_score()
+
+        self.game_stats.game_active = True
+        self._new_level(level_up = False)
+
+
+
     def restart_spawn_star_timer(self):
         """Таймер для спавна новой звезды"""
         pygame.time.set_timer(pygame.USEREVENT+3, self.settings.time_star_spawn)
+
+    def restart_new_enemy_position_timer(self):
+        """Таймер для смещение позиции противника"""
+        pygame.time.set_timer(pygame.USEREVENT+2, self.settings.time_change_enemy_position)
 
 
     def _update_points(self):
@@ -161,6 +185,7 @@ class TouhouGame:
         # Сброс таймера при начале стрельбы
         pygame.time.set_timer(pygame.USEREVENT, 100)
 
+
     def _stars_update(self):
         """Обновление положения звезд"""
         self.stars.update()
@@ -196,7 +221,8 @@ class TouhouGame:
             self.scoreboard.prep_damage()
         else:
             self.game_stats.game_active = False
-            sys.exit() #Game Over
+            self.game_stats.save_high_score()
+            # sys.exit() #Game Over
 
 
     def _check_events(self):
@@ -233,7 +259,7 @@ class TouhouGame:
             self.player.moving_left = True
             self.player.change_image()
         elif event.key == pygame.K_p and not self.game_stats.game_active:
-            self.game_stats.game_active = True
+            self.start_game()
         elif event.key == pygame.K_q:
             sys.exit()
         elif event.key == pygame.K_z:

@@ -11,6 +11,13 @@ class GameStats():
         with open(self.filename) as f: #Открытие файла json для чтения
             self.high_score = int(json.load(f)) #Чтение из файла
 
-        self.score = 900
+        self.score = 0
 
         self.game_active = True
+
+    def reset_stats(self):
+        self.score = 0
+
+    def save_high_score(self):
+        with open(self.filename, "w") as f: #Открытие файла json для записи
+            json.dump(self.high_score, f) #Запись списка в файл

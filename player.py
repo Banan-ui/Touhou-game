@@ -7,6 +7,7 @@ class Player():
     def __init__(self, ai_game):
         """Инициализирует корабль и задает его начальную позицию."""
 
+        self.stats = ai_game.game_stats
         self.screen = ai_game.screen
         self.screen_rect = ai_game.screen.get_rect()
         self.settings = ai_game.settings
@@ -65,7 +66,10 @@ class Player():
         self.rect.midbottom = self.screen_rect.midbottom
         self.rect.y -= 20
         self.x = float(self.rect.x)
-        self.change_images_alpha(100)
+        """При перемещении персонажа на начальную позицыю при старте игры
+         прозрачность не меняеться"""
+        if self.stats.game_active: 
+            self.change_images_alpha(100)
 
     def change_images_alpha(self, value=255):
         """Изменение прозрачности изображений"""
