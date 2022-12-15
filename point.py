@@ -20,6 +20,7 @@ class Point(Sprite):
         self.rect.x = random_pos
 
     def update(self):
+        """Изменение положение поинта"""
         self.rect.y += self.settings.point_speed
 
 

@@ -26,12 +26,11 @@ class TouhouGame:
 
         self.player = Player(self)
         self.enemy = Enemy(self)
+        self.scoreboard = Scoreboard(self)
         self.bullets = pygame.sprite.Group()
         self.points = pygame.sprite.Group()
         self.stars = pygame.sprite.Group()
         self.stars_collision_rects = pygame.sprite.Group()
-        self.scoreboard = Scoreboard(self)
-
 
         self.game_stats.game_active = False
         self.neutral_status = False
@@ -39,10 +38,9 @@ class TouhouGame:
         self.life_bar = LifeBar(self)
         self.fire = False
 
-
-
         #Таймер для ограничения скорости создания поинтов
-        pygame.time.set_timer(pygame.USEREVENT+1, self.settings.time_spawn_new_point)
+        pygame.time.set_timer(pygame.USEREVENT+1, 
+            self.settings.time_spawn_new_point)
         self.fire_timing = True
 
         self.restart_new_enemy_position_timer()
@@ -89,7 +87,7 @@ class TouhouGame:
 
 
     def _check_ballet_enemy_collisions(self):
-        """Проверка колиизии Марисы и пуль"""
+        """Проверка колиизии врага и пуль"""
         collision = pygame.sprite.spritecollideany(self.enemy, self.bullets)
         if collision:
             #Уменьшение хп и перерисовка полоски жизни
@@ -133,15 +131,14 @@ class TouhouGame:
         self.game_stats.game_active = True
         self._new_level(level_up = False)
 
-
-
     def restart_spawn_star_timer(self):
         """Таймер для спавна новой звезды"""
         pygame.time.set_timer(pygame.USEREVENT+3, self.settings.time_star_spawn)
 
     def restart_new_enemy_position_timer(self):
         """Таймер для смещение позиции противника"""
-        pygame.time.set_timer(pygame.USEREVENT+2, self.settings.time_change_enemy_position)
+        pygame.time.set_timer(pygame.USEREVENT+2, 
+            self.settings.time_change_enemy_position)
 
 
     def _update_points(self):
@@ -173,12 +170,12 @@ class TouhouGame:
         self.settings.update_full_damage()
 
     def _change_balls(self):
-            """Обновление количества шаров
-            0 -> 9 = 1 ball;
-            10 -> 19 = 2 balls;
-            20 -> max_damage = 3 balls"""
-            self.settings.ball = int(self.settings.variable_damage / 10)+1
-            self.player.update_ball_image()
+        """Обновление количества шаров
+        0 -> 9 = 1 ball;
+        10 -> 19 = 2 balls;
+        20 -> max_damage = 3 balls"""
+        self.settings.ball = int(self.settings.variable_damage / 10)+1
+        self.player.update_ball_image()
 
     def _create_timings(self):
         """Таймер для кулдауна выпуска пуль"""
@@ -284,8 +281,9 @@ class TouhouGame:
         self.bullets.draw(self.screen)
         self.stars.draw(self.screen)
 
-        self.stars_collision_rects.update()
-        self.player.rect_collision.update()
+        #Отображение хит боксов персонажа и звезд
+        # self.stars_collision_rects.update()
+        # self.player.rect_collision.update()
 
         self.points.draw(self.screen)
         self.enemy.blit_me()

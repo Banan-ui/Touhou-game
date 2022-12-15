@@ -10,8 +10,7 @@ class RectCollision(Sprite):
         self.rect = pygame.Rect(0, 0, side, side)
         self.rect.center = center
         self.image = pygame.image.load('images/bullet.png')
-
-
+        
         #Для тестов
         self.screen = screen
         self.color = (255, 0, 0)

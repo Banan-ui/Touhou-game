@@ -11,7 +11,8 @@ class Enemy():
 
         self.image = pygame.image.load('images/marisa.png')
         self.rect = self.image.get_rect(midtop=self.screen_rect.midtop)
-        #Опускание от верхней точки окна для вывода статистики игры
+
+        #Опускание от верхней точки окна для места вывода статистики игры
         self.rect.y += 60
         self.new_position = self.rect.centerx
 
@@ -31,6 +32,7 @@ class Enemy():
             self.rect.x = self.x
 
     def reset_position(self):
+        """Возвращение на изначальную позицию"""
         self.rect.midtop = self.screen_rect.midtop
         self.rect.y += 60
 

@@ -34,8 +34,8 @@ class Player():
         self.rect.midbottom = self.screen_rect.midbottom
         self.rect.y -= 20
 
+        #Создание прямоугольника для отслеживания коллизий
         self.rect_collision = RectCollision(self.rect.center, 20, ai_game.screen)
-
 
         self.x = float(self.rect.x)
 
@@ -48,6 +48,7 @@ class Player():
         self.rect_collision.rect.center = self.rect.center
 
     def update_ball_image(self):
+        """Изменяет выводимое изображение шаров в зависимости от их кол-ва"""
         self.ball_image = self.ball_images[self.settings.ball-1]
 
     def change_image(self):
@@ -59,7 +60,6 @@ class Player():
             self.image = self.right_image
         else:
             self.image = self.idle_image
-
 
     def reset_position(self):
         """Перемещение персонажа на изначальную позицию"""

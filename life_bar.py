@@ -3,7 +3,7 @@ import pygame
 class LifeBar():
     """Класс для создания полоски жизни врага"""
     def __init__(self, ai_game):
-
+        """Инициализация"""
         self.screen = ai_game.screen
         self.screen_rect = ai_game.screen.get_rect()
         self.settings = ai_game.settings

@@ -1,7 +1,9 @@
 import pygame.font
 
 class Scoreboard():
+    """Класс для вывода игровой информации."""
     def __init__(self, ai_game):
+        """Инициализирует атрибуты подсчета очков, тексты, цвета"""
         self.ai_game = ai_game
         self.screen = ai_game.screen
         self.screen_rect = self.screen.get_rect()
@@ -52,6 +54,7 @@ class Scoreboard():
         self.high_score_image = self.score_font.render(highscore, True, self.text_color)
 
     def prep_damage(self):
+        """Преобразует текущий урон в графическое изображение."""
         if self.settings.variable_damage == self.settings.max_variable_damage:
             damage = "DMG:MAX"
         else:
@@ -68,6 +71,7 @@ class Scoreboard():
             self.prep_high_score()
 
     def show_score(self):
+        """Выводит всю игровую информацию"""
         self.screen.blit(self.score_image, self.score_rect)
         self.screen.blit(self.high_score_image, self.high_score_rect)
         self.screen.blit(self.level_image, self.level_rect)
