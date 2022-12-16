@@ -10,6 +10,7 @@ from life_bar import LifeBar
 from star import Star
 from game_stats import GameStats
 from scoreboard import Scoreboard
+from sound import Sound
 
 class TouhouGame:
     """Класс для управления ресурсами и поведением игры."""
@@ -31,6 +32,7 @@ class TouhouGame:
         self.points = pygame.sprite.Group()
         self.stars = pygame.sprite.Group()
         self.stars_collision_rects = pygame.sprite.Group()
+        self.sound = Sound()
 
         self.game_stats.game_active = False
         self.neutral_status = False
@@ -66,6 +68,7 @@ class TouhouGame:
     def _create_bullets(self): #!!!
         """Создание новых пуль в соответствии с кол-вом и расположением шаров"""
         self.fire_timing = False
+        self.sound.fire_play()
         if self.settings.ball == 1:
             self.bullets.add(Bullet(self, "center"))
         elif self.settings.ball == 2:
@@ -90,6 +93,7 @@ class TouhouGame:
         """Проверка колиизии врага и пуль"""
         collision = pygame.sprite.spritecollideany(self.enemy, self.bullets)
         if collision:
+            self.sound.damage_play()
             #Уменьшение хп и перерисовка полоски жизни
             self.settings.enemy_hp -= self.settings.damage_for_hit
             self.life_bar.create_green_bar()
@@ -98,6 +102,7 @@ class TouhouGame:
             self.scoreboard.prep_score()
             
             if self.settings.enemy_hp <= 0:
+                self.sound.kill_play()
                 self._new_level(level_up = True)
 
     def _new_level(self, level_up):
@@ -129,6 +134,8 @@ class TouhouGame:
         self.scoreboard.prep_score()
 
         self.game_stats.game_active = True
+        self.sound.ok_play()
+        self.sound.play_music()
         self._new_level(level_up = False)
 
     def restart_spawn_star_timer(self):
@@ -139,7 +146,6 @@ class TouhouGame:
         """Таймер для смещение позиции противника"""
         pygame.time.set_timer(pygame.USEREVENT+2, 
             self.settings.time_change_enemy_position)
-
 
     def _update_points(self):
         """Обновления позиции поинта"""
@@ -155,6 +161,7 @@ class TouhouGame:
         collision = pygame.sprite.spritecollideany(self.player, self.points)
         if collision:
             collision.kill()
+            self.sound.item_play()
             if self.settings.variable_damage < self.settings.max_variable_damage:
                 self._added_damage_and_change_ball()
 
@@ -204,6 +211,7 @@ class TouhouGame:
 
     def _player_hit(self):
         """Поведение персонажа при состыковке с звездой"""
+        self.sound.pldead_play()
         if self.settings.player_lives > 0:
             self.settings.player_lives -= 1
             self.neutral_status = True
@@ -219,6 +227,7 @@ class TouhouGame:
         else:
             self.game_stats.game_active = False
             self.game_stats.save_high_score()
+            self.sound.stop_music()
             # sys.exit() #Game Over
 
 

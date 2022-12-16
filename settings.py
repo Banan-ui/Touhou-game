@@ -57,7 +57,6 @@ class Settings():
             #Увеличение кол-ва спавнушихся звезд за раз каждые уровня
             self.spawn_stars = int(self.level / 3)+1
 
-        print(self.level % 2)
         if self.player_lives < self.max_player_lives and not self.level % 2:
             self.player_lives += 1
 
